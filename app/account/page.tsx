@@ -27,6 +27,7 @@ interface OrderDetail {
 }
 
 export default function Account() {
+  const backendUrl = process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState("orders");
   
@@ -88,7 +89,6 @@ export default function Account() {
     // Load orders from database & localstorage
     const fetchOrders = async () => {
       try {
-        const backendUrl = "http://localhost:5000";
         const userFlag = localStorage.getItem("craftore_user");
         let emailQuery = "";
         let token = "";
@@ -188,7 +188,7 @@ export default function Account() {
       
       // Fallback to local Express API login if Firebase skipped or failed
       if (!data) {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+        const res = await fetch(`${backendUrl}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -232,7 +232,7 @@ export default function Account() {
           const token = await userCredential.user.getIdToken();
           
           // Sync profile to MongoDB backend
-          const syncRes = await fetch("http://localhost:5000/api/auth/sync-profile", {
+          const syncRes = await fetch(`${backendUrl}/api/auth/sync-profile`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -262,7 +262,7 @@ export default function Account() {
       }
       
       if (!success) {
-        const res = await fetch("http://localhost:5000/api/auth/register", {
+        const res = await fetch(`${backendUrl}/api/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: signUpName, email, password, gender, dob, nationality })
@@ -287,7 +287,7 @@ export default function Account() {
     setIsRegisterSuccess(false);
     setSuccessMessage("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/send-otp", {
+      const res = await fetch(`${backendUrl}/api/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
@@ -308,7 +308,7 @@ export default function Account() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+      const res = await fetch(`${backendUrl}/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp })
@@ -353,7 +353,7 @@ export default function Account() {
           token = parsed.token || "";
         } catch (e) {}
       }
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+      const res = await fetch(`${backendUrl}/api/orders/${orderId}/cancel`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`

@@ -23,6 +23,7 @@ interface OrderDetail {
 }
 
 export default function AdminDashboard() {
+  const backendUrl = process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000";
   const [activeTab, setActiveTab] = useState("overview");
 
   // Admin authentication states
@@ -54,7 +55,7 @@ export default function AdminDashboard() {
       }
       
       if (!data) {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+        const res = await fetch(`${backendUrl}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: adminEmail, password: adminPassword })
@@ -125,7 +126,7 @@ export default function AdminDashboard() {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("craftore_admin_token") || "";
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch(`${backendUrl}/api/orders`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -149,7 +150,7 @@ export default function AdminDashboard() {
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string, remarks?: string) => {
     try {
       const token = localStorage.getItem("craftore_admin_token") || "";
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${backendUrl}/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
