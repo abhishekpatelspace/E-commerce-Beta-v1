@@ -5,6 +5,8 @@ import Link from "next/link";
 import { User, LogOut, Package, Heart, Settings, Key, CheckCircle, Mail, HelpCircle, MessageSquare } from "lucide-react";
 import { products } from "@/lib/mockData";
 import { jsPDF } from "jspdf";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 
 interface OrderDetail {
   orderId: string;
@@ -163,21 +165,45 @@ export default function Account() {
     setIsRegisterSuccess(false);
     setSuccessMessage("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Invalid credentials.");
-        return;
+      let data;
+      let token = "";
+      
+      // Try Firebase authentication first
+      const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
+      if (!isFirebaseMock) {
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          token = await userCredential.user.getIdToken();
+          
+          data = {
+            name: userCredential.user.displayName || email.split("@")[0],
+            email: userCredential.user.email,
+            role: email === "abhishekpatelspace@gmail.com" ? "admin" : "customer",
+            token: token
+          };
+        } catch (fbErr: any) {
+          console.warn("Firebase sign in failed, falling back to local auth:", fbErr.message);
+        }
       }
       
-      if (res.status === 202 && data.requiresVerification) {
-        setOtpSent(true);
-        setAuthError("");
-        return;
+      // Fallback to local Express API login if Firebase skipped or failed
+      if (!data) {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        data = await res.json();
+        if (!res.ok) {
+          setAuthError(data.error || "Invalid credentials.");
+          return;
+        }
+        
+        if (res.status === 202 && data.requiresVerification) {
+          setOtpSent(true);
+          setAuthError("");
+          return;
+        }
       }
 
       localStorage.setItem("craftore_user", JSON.stringify(data));
@@ -197,20 +223,60 @@ export default function Account() {
     }
     
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: signUpName, email, password, gender, dob, nationality })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Registration failed.");
-        return;
+      let success = false;
+      const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
+      
+      if (!isFirebaseMock) {
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const token = await userCredential.user.getIdToken();
+          
+          // Sync profile to MongoDB backend
+          const syncRes = await fetch("http://localhost:5000/api/auth/sync-profile", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              name: signUpName,
+              gender,
+              dob,
+              nationality
+            })
+          });
+          
+          if (syncRes.ok) {
+            success = true;
+            setSuccessMessage("Account created successfully with Firebase Auth! Use the credentials to login.");
+            setIsSignUp(false);
+            setPassword("");
+          } else {
+            const syncData = await syncRes.json();
+            setAuthError(syncData.error || "Profile sync failed.");
+            return;
+          }
+        } catch (fbErr: any) {
+          console.warn("Firebase sign up failed, falling back to local signup:", fbErr.message);
+        }
       }
       
-      setOtpSent(true);
-      setIsRegisterSuccess(true);
-      setAuthError("");
+      if (!success) {
+        const res = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: signUpName, email, password, gender, dob, nationality })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setAuthError(data.error || "Registration failed.");
+          return;
+        }
+        
+        setOtpSent(true);
+        setIsRegisterSuccess(true);
+        setAuthError("");
+      }
     } catch (err) {
       setAuthError("Failed to connect to authentication server.");
     }
@@ -264,6 +330,7 @@ export default function Account() {
   };
 
   const handleSignOut = () => {
+    signOut(auth).catch(() => {});
     localStorage.removeItem("craftore_user");
     setIsLoggedIn(false);
   };

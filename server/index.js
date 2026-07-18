@@ -9,6 +9,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import admin from 'firebase-admin';
 
 // Configure dotenv to point to the root .env file
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -128,7 +129,42 @@ function generateToken(payload) {
   return `${header}.${body}.${signature}`;
 }
 
-function verifyToken(token) {
+// Initialize Firebase Admin SDK
+let firebaseAdminApp = null;
+const hasFirebaseCreds = process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY;
+
+if (hasFirebaseCreds) {
+  try {
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
+    firebaseAdminApp = admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: privateKey
+      })
+    });
+    console.log("✔ Firebase Admin SDK successfully initialized.");
+  } catch (err) {
+    console.error("✘ Failed to initialize Firebase Admin SDK:", err.message);
+  }
+} else {
+  console.warn("⚠️ Firebase environment credentials not found. Firebase features will run in dev/mock fallback mode.");
+}
+
+async function verifyToken(token) {
+  if (firebaseAdminApp) {
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      return {
+        id: decodedToken.uid,
+        email: decodedToken.email,
+        role: decodedToken.email === "abhishekpatelspace@gmail.com" ? "admin" : "customer"
+      };
+    } catch (fbErr) {
+      console.warn("Firebase token verification failed, checking custom JWT signature...");
+    }
+  }
+
   const secret = process.env.JWT_SECRET || "craftore_default_secure_secret_token_key";
   try {
     const [header, body, signature] = token.split('.');
@@ -143,12 +179,12 @@ function verifyToken(token) {
   }
 }
 
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.status(401).json({ error: "Access token is required." });
 
-  const payload = verifyToken(token);
+  const payload = await verifyToken(token);
   if (!payload) return res.status(403).json({ error: "Invalid or expired token." });
 
   req.user = payload;
@@ -425,6 +461,48 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (e) {
     console.error('Login authentication failed:', e);
     res.status(500).json({ error: e.message });
+  }
+});
+
+// Sync Firebase User Profile details to MongoDB
+app.post('/api/auth/sync-profile', authenticateToken, async (req, res) => {
+  const { name, gender, dob, nationality } = req.body;
+  try {
+    const email = req.user.email;
+    if (!email) {
+      return res.status(400).json({ error: "Email is missing from verified credentials token." });
+    }
+    
+    // Check if user already exists in DB
+    let user = await User.findOne({ email: String(email) });
+    if (!user) {
+      // Create user profile document in DB
+      user = await User.create({
+        name: name || email.split("@")[0],
+        email: email,
+        password: "firebase_authenticated_external_account",
+        role: email === "abhishekpatelspace@gmail.com" ? "admin" : "customer",
+        isVerified: true,
+        gender,
+        dob,
+        nationality
+      });
+      console.log(`[PROFILE SYNC] Saved new Firebase user profile for email: ${email}`);
+    } else {
+      // Update existing user details
+      if (name) user.name = name;
+      if (gender) user.gender = gender;
+      if (dob) user.dob = dob;
+      if (nationality) user.nationality = nationality;
+      user.isVerified = true;
+      await user.save();
+      console.log(`[PROFILE SYNC] Updated user profile for email: ${email}`);
+    }
+    
+    res.json({ message: "Profile successfully synchronized.", user });
+  } catch (err) {
+    console.error('Failed to sync profile:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 

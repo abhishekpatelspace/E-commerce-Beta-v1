@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { products } from "@/lib/mockData";
 import { LayoutDashboard, ShoppingBag, ClipboardList, AlertTriangle, Plus, Check, Trash2, ArrowUpRight, Home, LogOut, Truck, MessageSquare } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 interface OrderDetail {
   orderId: string;
@@ -32,15 +34,36 @@ export default function AdminDashboard() {
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: adminEmail, password: adminPassword })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAdminError(data.error || "Authentication failed.");
-        return;
+      let data;
+      let token = "";
+      
+      const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
+      if (!isFirebaseMock) {
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+          token = await userCredential.user.getIdToken();
+          
+          data = {
+            email: userCredential.user.email,
+            role: userCredential.user.email === "abhishekpatelspace@gmail.com" ? "admin" : "customer",
+            token: token
+          };
+        } catch (fbErr: any) {
+          console.warn("Firebase admin sign in failed, falling back to local:", fbErr.message);
+        }
+      }
+      
+      if (!data) {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: adminEmail, password: adminPassword })
+        });
+        data = await res.json();
+        if (!res.ok) {
+          setAdminError(data.error || "Authentication failed.");
+          return;
+        }
       }
       
       if (data.role === "admin") {
@@ -57,6 +80,7 @@ export default function AdminDashboard() {
   };
 
   const handleAdminSignOut = () => {
+    signOut(auth).catch(() => {});
     localStorage.removeItem("craftore_admin_user");
     localStorage.removeItem("craftore_admin_token");
     setIsAdminLoggedIn(false);
