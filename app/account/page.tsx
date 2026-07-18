@@ -6,7 +6,7 @@ import { User, LogOut, Package, Heart, Settings, Key, CheckCircle, Mail, HelpCir
 import { products } from "@/lib/mockData";
 import { jsPDF } from "jspdf";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 interface OrderDetail {
   orderId: string;
@@ -333,6 +333,54 @@ export default function Account() {
     signOut(auth).catch(() => {});
     localStorage.removeItem("craftore_user");
     setIsLoggedIn(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthError("");
+    setSuccessMessage("");
+    const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
+    
+    if (isFirebaseMock) {
+      // Fallback mock behavior for local developer mode
+      const user = { name: "Google Dev User", email: "google-dev@craftore.com", token: "google_oauth_token", role: "customer" };
+      localStorage.setItem("craftore_user", JSON.stringify(user));
+      setIsLoggedIn(true);
+      return;
+    }
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
+      
+      // Sync profile details to MongoDB backend
+      await fetch(`${backendUrl}/api/auth/sync-profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: result.user.displayName || result.user.email?.split("@")[0] || "Google User",
+          gender: "Male",
+          dob: "",
+          nationality: ""
+        })
+      });
+
+      const data = {
+        name: result.user.displayName || result.user.email?.split("@")[0] || "Google User",
+        email: result.user.email,
+        role: result.user.email === "abhishekpatelspace@gmail.com" ? "admin" : "customer",
+        token: token
+      };
+
+      localStorage.setItem("craftore_user", JSON.stringify(data));
+      setIsLoggedIn(true);
+    } catch (fbErr: any) {
+      console.error("Firebase Google Login failed:", fbErr.message);
+      setAuthError("Google Sign-In failed: " + (fbErr.message || "Please try again."));
+    }
   };
 
   const handleCancelOrder = async (orderId: string) => {
@@ -802,11 +850,7 @@ export default function Account() {
             <div className="mt-6 border-t border-border/40 pt-6">
               <button
                 type="button"
-                onClick={() => {
-                  const user = { name: "Google Dev User", email: "google-dev@craftore.com", token: "google_oauth_token", role: "customer" };
-                  localStorage.setItem("craftore_user", JSON.stringify(user));
-                  setIsLoggedIn(true);
-                }}
+                onClick={handleGoogleSignIn}
                 className="w-full flex items-center justify-center gap-2 border border-border hover:bg-muted/40 py-2.5 rounded text-xs font-semibold text-foreground transition-all"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
