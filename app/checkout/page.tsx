@@ -129,6 +129,13 @@ export default function Checkout() {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Invalid response from server:", text);
+        throw new Error("Invalid server response (HTML). Please verify that NEXT_PUBLIC_NODE_BACKEND_URL is set to your active backend server in Vercel, not a frontend Vercel domain or placeholder parking page.");
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create checkout session.");
