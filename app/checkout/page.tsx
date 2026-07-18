@@ -106,7 +106,7 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000";
+      const backendUrl = (process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000").replace(/^['"]|['"]$/g, "");
       const currentUser = localStorage.getItem("craftore_user");
       let customerEmail = "guest@craftore.com";
       if (currentUser) {
