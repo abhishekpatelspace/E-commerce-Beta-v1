@@ -85,7 +85,7 @@ export default function Navbar() {
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setActiveDropdown(null);
-    }, 14000);
+    }, 200);
   };
 
   const isHomepage = pathname === "/";
