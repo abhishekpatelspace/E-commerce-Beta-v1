@@ -343,7 +343,7 @@ async function seedAdminUser() {
 }
 
 // CORS Middleware
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors());
 
 // Route specific body-parsing configuration (stripe webhook needs raw body)
 app.use((req, res, next) => {
