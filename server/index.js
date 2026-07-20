@@ -299,19 +299,24 @@ connectDB();
 // Seed mock products into MongoDB if they don't exist
 async function seedProducts() {
   try {
-    const count = await Product.countDocuments();
-    if (count === 0) {
-      console.log('Product collection is empty. Seeding products...');
-      const seedFile = path.join(__dirname, 'products-seed.json');
-      if (fs.existsSync(seedFile)) {
-        const seedData = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
-        await Product.insertMany(seedData);
-        console.log(`Seeded ${seedData.length} products successfully.`);
+    const seedFile = path.join(__dirname, 'products-seed.json');
+    if (fs.existsSync(seedFile)) {
+      const seedData = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
+      let seededCount = 0;
+      for (const item of seedData) {
+        const exists = await Product.findOne({ id: item.id });
+        if (!exists) {
+          await Product.create(item);
+          seededCount++;
+        }
+      }
+      if (seededCount > 0) {
+        console.log(`Seeded ${seededCount} new products successfully.`);
       } else {
-        console.warn('products-seed.json not found. Skipping seed.');
+        console.log('All seed products are already present in the database.');
       }
     } else {
-      console.log(`Database already has ${count} products. Skipping seed.`);
+      console.warn('products-seed.json not found. Skipping seed.');
     }
   } catch (error) {
     console.error('Failed to seed products:', error);
@@ -728,6 +733,10 @@ app.post('/api/checkout/create-session', async (req, res) => {
     });
 
     await order.save();
+
+    if (shippingForm.payment === 'cod') {
+      return res.json({ url: null, orderId: orderId, status: 'Pending' });
+    }
 
     // 4. Construct Stripe checkout session line items
     const lineItems = validatedItems.map(item => ({

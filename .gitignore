@@ -39,3 +39,5 @@ python_engine/analytics.json
 # system files
 .DS_Store
 Thumbs.db
+
+.vercel

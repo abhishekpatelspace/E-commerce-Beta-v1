@@ -143,8 +143,36 @@ export default function Checkout() {
 
       const data = await response.json();
       
-      // Redirect to Stripe checkout
-      if (data.url) {
+      if (shippingForm.payment === "cod" && data.orderId) {
+        // Cash on delivery directly sets the completed order reference!
+        // Save order details to localstorage orders list so they show in order history
+        const newOrder: OrderDetail = {
+          orderId: data.orderId,
+          date: new Date().toISOString().split("T")[0],
+          itemsCount: cart.reduce((acc, item) => acc + item.quantity, 0),
+          total: total || cartTotal || 0,
+          status: "Pending",
+          shippingAddress: `${shippingForm.address}, ${shippingForm.city}`,
+        };
+
+        const existingOrders = localStorage.getItem("craftore_orders");
+        let ordersList = [];
+        if (existingOrders) {
+          try {
+            ordersList = JSON.parse(existingOrders);
+          } catch (e) {}
+        }
+        localStorage.setItem("craftore_orders", JSON.stringify([newOrder, ...ordersList]));
+
+        // Clear states & cart
+        clearCart();
+        localStorage.removeItem("craftore_discount");
+        localStorage.removeItem("craftore_coupon");
+        
+        setCompletedOrder(data.orderId);
+        setLoading(false);
+      } else if (data.url) {
+        // Redirect to Stripe checkout
         window.location.href = data.url;
       } else {
         throw new Error("No checkout URL returned from payment server.");
@@ -335,11 +363,11 @@ export default function Checkout() {
                     <CreditCard className="h-5 w-5 text-primary" strokeWidth={1.5} />
                     2. Secure Payment Gateway Selection
                   </h3>
-                  <div className="flex gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <button
                       type="button"
                       onClick={() => setForm({ ...shippingForm, payment: "stripe" })}
-                      className={`flex-1 flex justify-center items-center py-2.5 border rounded-md text-xs font-semibold tracking-wide transition-all ${
+                      className={`flex justify-center items-center py-2.5 border rounded-md text-xs font-semibold tracking-wide transition-all ${
                         shippingForm.payment === "stripe" ? "border-luxury-gold bg-muted" : "border-border/40"
                       }`}
                     >
@@ -348,13 +376,28 @@ export default function Checkout() {
                     <button
                       type="button"
                       onClick={() => setForm({ ...shippingForm, payment: "razorpay" })}
-                      className={`flex-1 flex justify-center items-center py-2.5 border rounded-md text-xs font-semibold tracking-wide transition-all ${
+                      className={`flex justify-center items-center py-2.5 border rounded-md text-xs font-semibold tracking-wide transition-all ${
                         shippingForm.payment === "razorpay" ? "border-luxury-gold bg-muted" : "border-border/40"
                       }`}
                     >
                       Razorpay (UPI / NetBanking)
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...shippingForm, payment: "cod" })}
+                      className={`flex justify-center items-center py-2.5 border rounded-md text-xs font-semibold tracking-wide transition-all ${
+                        shippingForm.payment === "cod" ? "border-luxury-gold bg-muted" : "border-border/40"
+                      }`}
+                    >
+                      Cash on Delivery (COD)
+                    </button>
                   </div>
+
+                  {shippingForm.payment === "cod" && (
+                    <div className="mb-6 p-5 rounded-lg border border-border/40 bg-muted/10 text-xs text-muted-foreground leading-relaxed">
+                      <p><strong>Cash on Delivery selected.</strong> You will pay the delivery person directly in cash upon receiving your premium sustainable items. No online card pre-payment is required.</p>
+                    </div>
+                  )}
 
                   {shippingForm.payment === "stripe" ? (
                     <div className="space-y-4 bg-muted/20 p-5 rounded-lg border border-border/40">
