@@ -9,10 +9,13 @@ import { CreditCard, Truck, CheckCircle2, ChevronRight, Lock, Loader2, Sparkles 
 interface OrderDetail {
   orderId: string;
   date: string;
+  placedAt?: string;
   itemsCount: number;
   total: number;
   status: string;
   shippingAddress: string;
+  items?: any[];
+  paymentMethod?: string;
 }
 
 export default function Checkout() {
