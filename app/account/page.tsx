@@ -6,7 +6,7 @@ import { User, LogOut, Package, Heart, Settings, Key, CheckCircle, Mail, HelpCir
 import { products } from "@/lib/mockData";
 import { jsPDF } from "jspdf";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 
 interface OrderDetail {
   orderId: string;
@@ -45,6 +45,13 @@ export default function Account() {
   const [authError, setAuthError] = useState("");
   const [isRegisterSuccess, setIsRegisterSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Recovery states
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [recoveryOtp, setRecoveryOtp] = useState("");
 
   // User order search and filters
   const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -327,6 +334,75 @@ export default function Account() {
       setAuthError("");
       setOtpSent(false);
       setIsSignUp(false);
+      setPassword("");
+    } catch (err) {
+      setAuthError("Failed to connect to authentication server.");
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setSuccessMessage("");
+    const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
+
+    if (!isFirebaseMock) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        setSuccessMessage("A password reset link has been sent to your email address by Firebase.");
+        setIsForgotPassword(false);
+        return;
+      } catch (fbErr: any) {
+        console.warn("Firebase password reset failed, falling back to local auth:", fbErr.message);
+      }
+    }
+
+    // Local / fallback auth: Trigger reset OTP
+    try {
+      const res = await fetch(`${backendUrl}/api/auth/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || "Failed to trigger recovery OTP. Make sure the email is registered.");
+        return;
+      }
+      setSuccessMessage("A recovery code has been sent to your email. Please enter it below to set a new password.");
+      setIsForgotPassword(false);
+      setIsResetPassword(true);
+      setRecoveryOtp("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (err) {
+      setAuthError("Failed to connect to authentication server.");
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setSuccessMessage("");
+
+    if (newPassword !== confirmNewPassword) {
+      setAuthError("New passwords do not match.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${backendUrl}/api/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: recoveryOtp, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || "Failed to reset password. Verify the code and try again.");
+        return;
+      }
+      setSuccessMessage("Password reset successfully! Please log in with your new password.");
+      setIsResetPassword(false);
       setPassword("");
     } catch (err) {
       setAuthError("Failed to connect to authentication server.");
@@ -625,7 +701,13 @@ export default function Account() {
               <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold font-semibold mb-1 block">SECURE GATEWAY</span>
               <h2 className="font-serif text-2xl font-normal text-foreground">Welcome to CraftOre</h2>
               <p className="text-xs text-muted-foreground mt-2 font-light">
-                {isSignUp ? "Create your customer account to start shopping." : "Sign in to track orders and save your wishlist catalog."}
+                {isForgotPassword 
+                  ? "Recover your account password." 
+                  : isResetPassword 
+                    ? "Enter your recovery OTP and new password."
+                    : isSignUp 
+                      ? "Create your customer account to start shopping." 
+                      : "Sign in to track orders and save your wishlist catalog."}
               </p>
             </div>
 
@@ -684,6 +766,93 @@ export default function Account() {
                   className="w-full text-xs text-muted-foreground hover:text-foreground text-center block mt-3"
                 >
                   Back to Login / Registration
+                </button>
+              </form>
+            ) : isForgotPassword ? (
+              /* Forgot Password Form */
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label className="block text-[9px] font-semibold uppercase tracking-wider mb-1.5 text-muted-foreground">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded border border-border bg-background px-3 py-2.5 text-xs focus:outline-none focus:border-luxury-gold text-foreground"
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-foreground hover:bg-foreground/90 text-background py-2.5 rounded text-xs font-semibold tracking-wide transition-colors uppercase"
+                >
+                  Send Recovery Link / OTP
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotPassword(false);
+                    setAuthError("");
+                    setSuccessMessage("");
+                  }}
+                  className="w-full text-xs text-muted-foreground hover:text-foreground text-center block mt-3"
+                >
+                  Back to Sign In
+                </button>
+              </form>
+            ) : isResetPassword ? (
+              /* Reset Password Form */
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-[9px] font-semibold uppercase tracking-wider mb-1.5 text-muted-foreground">Enter 6-Digit OTP</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={recoveryOtp}
+                    onChange={(e) => setRecoveryOtp(e.target.value)}
+                    className="w-full text-center rounded border border-border bg-background px-3 py-2.5 text-sm tracking-[0.4em] font-semibold focus:outline-none focus:border-luxury-gold text-foreground"
+                    placeholder="000000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-semibold uppercase tracking-wider mb-1.5 text-muted-foreground">New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full rounded border border-border bg-background px-3 py-2.5 text-xs focus:outline-none focus:border-luxury-gold text-foreground"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-semibold uppercase tracking-wider mb-1.5 text-muted-foreground">Confirm New Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    className="w-full rounded border border-border bg-background px-3 py-2.5 text-xs focus:outline-none focus:border-luxury-gold text-foreground"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-foreground hover:bg-foreground/90 text-background py-2.5 rounded text-xs font-semibold tracking-wide transition-colors uppercase"
+                >
+                  Reset Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsResetPassword(false);
+                    setAuthError("");
+                    setSuccessMessage("");
+                  }}
+                  className="w-full text-xs text-muted-foreground hover:text-foreground text-center block mt-3"
+                >
+                  Back to Sign In
                 </button>
               </form>
             ) : isSignUp ? (
@@ -805,7 +974,20 @@ export default function Account() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-semibold uppercase tracking-wider mb-1.5 text-muted-foreground">Password</label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Password</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPassword(true);
+                        setAuthError("");
+                        setSuccessMessage("");
+                      }}
+                      className="text-[9px] font-semibold text-luxury-gold hover:underline"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                   <input
                     type="password"
                     required

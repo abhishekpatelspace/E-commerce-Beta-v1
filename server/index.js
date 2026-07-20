@@ -559,6 +559,35 @@ app.post('/api/auth/send-otp', async (req, res) => {
   }
 });
 
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: "Email, OTP and new password are required." });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "User profile not found." });
+    }
+    if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+      return res.status(400).json({ error: "Invalid or expired OTP." });
+    }
+
+    // Hash the new password and update user
+    user.password = hashPassword(newPassword);
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    console.log(`[AUTH RESET-PASSWORD] Password updated for email: ${email}`);
+    res.json({ message: "Password updated successfully." });
+  } catch (e) {
+    console.error('Password reset failed:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Get Orders Endpoint (secured with authentication)
 app.get('/api/orders', authenticateToken, async (req, res) => {
   try {
