@@ -23,7 +23,7 @@ interface OrderDetail {
 }
 
 export default function AdminDashboard() {
-  const backendUrl = (process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000").replace(/^['"]|['"]$/g, "");
+  const backendUrl = "";
   const [activeTab, setActiveTab] = useState("overview");
 
   // Admin authentication states

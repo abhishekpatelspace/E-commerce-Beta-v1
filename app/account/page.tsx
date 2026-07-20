@@ -28,7 +28,7 @@ interface OrderDetail {
 }
 
 export default function Account() {
-  const backendUrl = (process.env.NEXT_PUBLIC_NODE_BACKEND_URL || "http://localhost:5000").replace(/^['"]|['"]$/g, "");
+  const backendUrl = "";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState("orders");
   
