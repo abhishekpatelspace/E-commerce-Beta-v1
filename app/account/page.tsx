@@ -1076,6 +1076,39 @@ export default function Account() {
                             </div>
                           </div>
 
+                          {/* Ordered Items Detail */}
+                          {order.items && order.items.length > 0 && (
+                            <div className="mt-5 border-t border-border/30 pt-4">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-3">Ordered Items</span>
+                              <div className="space-y-3">
+                                {order.items.map((item: any, idx: number) => (
+                                  <div key={idx} className="flex items-center gap-3 bg-muted/20 rounded-lg p-3 border border-border/20">
+                                    {item.image ? (
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-14 h-14 rounded-md object-cover border border-border/30 flex-shrink-0"
+                                      />
+                                    ) : (
+                                      <div className="w-14 h-14 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border/30">
+                                        <Package className="h-5 w-5 text-muted-foreground" />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <span className="block text-xs font-semibold text-foreground truncate">{item.name}</span>
+                                      <span className="block text-[10px] text-muted-foreground mt-0.5">
+                                        Qty: {item.quantity} × ₹{item.price?.toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs font-semibold text-foreground flex-shrink-0">
+                                      ₹{(item.quantity * item.price).toFixed(2)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Visual Order Progress Stepper Timeline */}
                           {order.status !== "Cancelled" ? (
                             <div className="mt-6 border-t border-border/30 pt-4 space-y-4">

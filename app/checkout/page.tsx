@@ -149,10 +149,20 @@ export default function Checkout() {
         const newOrder: OrderDetail = {
           orderId: data.orderId,
           date: new Date().toISOString().split("T")[0],
+          placedAt: new Date().toISOString(),
           itemsCount: cart.reduce((acc, item) => acc + item.quantity, 0),
           total: total || cartTotal || 0,
           status: "Pending",
           shippingAddress: `${shippingForm.address}, ${shippingForm.city}`,
+          items: cart.map(item => ({
+            productId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || "",
+            variantId: item.variantId || item.id,
+            sku: item.sku || item.id,
+          })),
         };
 
         const existingOrders = localStorage.getItem("craftore_orders");
