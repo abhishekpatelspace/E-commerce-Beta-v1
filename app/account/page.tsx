@@ -344,20 +344,7 @@ export default function Account() {
     e.preventDefault();
     setAuthError("");
     setSuccessMessage("");
-    const isFirebaseMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_api_key";
 
-    if (!isFirebaseMock) {
-      try {
-        await sendPasswordResetEmail(auth, email);
-        setSuccessMessage("A password reset link has been sent to your email address by Firebase.");
-        setIsForgotPassword(false);
-        return;
-      } catch (fbErr: any) {
-        console.warn("Firebase password reset failed, falling back to local auth:", fbErr.message);
-      }
-    }
-
-    // Local / fallback auth: Trigger reset OTP
     try {
       const res = await fetch(`${backendUrl}/api/auth/send-otp`, {
         method: "POST",
@@ -366,17 +353,17 @@ export default function Account() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setAuthError(data.error || "Failed to trigger recovery OTP. Make sure the email is registered.");
+        setAuthError(data.error || "Failed to send OTP code. Please verify that your email is registered.");
         return;
       }
-      setSuccessMessage("A recovery code has been sent to your email. Please enter it below to set a new password.");
+      setSuccessMessage("A 6-digit OTP code has been sent to your email address. Please enter it below along with your new password.");
       setIsForgotPassword(false);
       setIsResetPassword(true);
       setRecoveryOtp("");
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (err) {
-      setAuthError("Failed to connect to authentication server. If you are using local MongoDB auth, make sure your local Node.js backend is running and NEXT_PUBLIC_NODE_BACKEND_URL is set correctly.");
+      setAuthError("Failed to connect to authentication server.");
     }
   };
 
