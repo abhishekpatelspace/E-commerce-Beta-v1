@@ -267,17 +267,34 @@ async function sendWelcomeCredentialsEmail(email, name, password) {
   }
 }
 
-// MongoDB Connection
+// MongoDB Connection with Local Fallback
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/craftore";
-mongoose.connect(MONGODB_URI)
-  .then(async () => {
+const LOCAL_MONGODB_URI = "mongodb://127.0.0.1:27017/craftore";
+
+async function connectDB() {
+  try {
+    console.log(`Connecting to MongoDB URI...`);
+    await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
     console.log('Connected to MongoDB successfully.');
     await seedProducts();
     await seedAdminUser();
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+  } catch (err) {
+    console.error(`MongoDB connection to primary URI failed:`, err.message);
+    if (MONGODB_URI !== LOCAL_MONGODB_URI) {
+      console.log(`Attempting fallback connection to local MongoDB: ${LOCAL_MONGODB_URI}`);
+      try {
+        await mongoose.connect(LOCAL_MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+        console.log('Connected to fallback local MongoDB successfully.');
+        await seedProducts();
+        await seedAdminUser();
+      } catch (localErr) {
+        console.error('Local MongoDB connection error:', localErr.message);
+      }
+    }
+  }
+}
+
+connectDB();
 
 // Seed mock products into MongoDB if they don't exist
 async function seedProducts() {
@@ -849,7 +866,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
         console.log(`Order ${orderId} status updated to Paid.`);
 
         // Forward paid order details to the Python Calculations Engine
-        const pythonUrl = process.env.PYTHON_ENGINE_URL || "http://localhost:400001";
+        const pythonUrl = process.env.PYTHON_ENGINE_URL || "http://localhost:5001";
         try {
           const response = await axios.post(`${pythonUrl}/order-paid`, {
             orderId: order.orderId,
