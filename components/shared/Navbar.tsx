@@ -101,16 +101,39 @@ export default function Navbar() {
           : "sticky top-0 bg-background/95 backdrop-blur-xl border-b border-border/40"
       )}
     >
-      {/* Announcement Bar */}
-      {!scrolled && (
-        <div className="bg-luxury-charcoal text-white text-center py-2 text-[10px] font-medium tracking-[0.2em] uppercase">
-          <span className="text-luxury-gold">✦</span>
-          {" "}Free shipping on orders over ₹8000{" "}
-          <span className="text-neutral-400">•</span>
-          {" "}Use code <span className="text-luxury-gold font-bold">WELCOME10</span> for 10% off{" "}
-          <span className="text-luxury-gold">✦</span>
-        </div>
-      )}
+      {/* Dynamic Continuous Marquee Banner (Left to Right) */}
+      <div className="bg-luxury-charcoal border-b border-amber-500/10 text-white overflow-hidden py-2 text-[11px] font-medium tracking-[0.18em] uppercase select-none relative z-50">
+        <motion.div
+          className="flex whitespace-nowrap gap-8 min-w-max items-center"
+          animate={{ x: ["-50%", "0%"] }}
+          transition={{
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 25,
+            ease: "linear",
+          }}
+        >
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-8 px-2">
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">✦</span>
+                <span className="text-neutral-100 font-semibold">Handcrafted in India</span>
+              </span>
+              <span className="text-amber-400/80 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">✦</span>
+                <span className="text-amber-300 font-semibold">99.7% Pure Copper</span>
+              </span>
+              <span className="text-amber-400/80 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">✦</span>
+                <span className="text-neutral-100 font-semibold">30-Day Returns</span>
+              </span>
+              <span className="text-amber-400/80 font-bold">•</span>
+            </div>
+          ))}
+        </motion.div>
+      </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Mobile Menu Trigger */}
