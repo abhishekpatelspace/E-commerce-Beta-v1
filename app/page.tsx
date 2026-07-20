@@ -32,14 +32,14 @@ export default function Home() {
           />
         </div>
         {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/4000 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10" />
 
         {/* Decorative elements */}
         <div className="absolute top-20 right-20 w-72 h-72 bg-luxury-gold/5 rounded-full blur-3xl z-10 animate-float" />
         <div className="absolute bottom-40 left-10 w-48 h-48 bg-luxury-brass/5 rounded-full blur-2xl z-10" />
 
-        <div className="relative z-20 flex h-screen flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-20 flex min-h-screen md:h-screen flex-col justify-center pt-24 pb-16 md:pt-0 md:pb-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -72,17 +72,17 @@ export default function Home() {
               Handcrafted pure copper vessels, organic cork accessories, and premium full-grain leather — designed by heritage Indian artisans.
             </motion.p>
 
-            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap gap-4">
+            <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link
                 href="/products"
-                className="group rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-neutral-900 px-8 py-4 text-sm font-semibold tracking-wide transition-all shadow-lg shadow-luxury-gold/20 flex items-center gap-2"
+                className="group rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-neutral-900 px-8 py-4 text-sm font-semibold tracking-wide transition-all shadow-lg shadow-luxury-gold/20 flex items-center justify-center gap-2 w-full sm:w-auto text-center"
               >
                 Shop Collection
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/b2b"
-                className="rounded-full border border-white/20 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/40 px-8 py-4 text-sm font-semibold tracking-wide transition-all"
+                className="rounded-full border border-white/20 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/40 px-8 py-4 text-sm font-semibold tracking-wide transition-all text-center w-full sm:w-auto"
               >
                 Wholesale Portal
               </Link>
@@ -96,7 +96,7 @@ export default function Home() {
             >
               {[
                 { value: "200+", label: "Artisans" },
-                { value: "4000K+", label: "Happy Customers" },
+                { value: "50K+", label: "Happy Customers" },
                 { value: "99.7%", label: "Pure Copper" },
               ].map((stat) => (
                 <div key={stat.label}>
@@ -110,7 +110,7 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
-          <span className="text-[9px] uppercase tracking-[0.3em] text-neutral-40000">Scroll</span>
+          <span className="text-[9px] uppercase tracking-[0.3em] text-neutral-500">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-luxury-gold/60 to-transparent" />
         </div>
       </section>
@@ -163,7 +163,7 @@ export default function Home() {
                 <div className="absolute inset-0 flex flex-col justify-end p-6 z-20 text-white">
                   <span className="text-[9px] uppercase tracking-[0.3em] text-luxury-gold/80 mb-1">{cat.count} Products</span>
                   <h3 className="font-serif text-xl tracking-wide mb-2">{cat.name}</h3>
-                  <span className="text-xs font-medium tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-8000 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                  <span className="text-xs font-medium tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                     Explore <ArrowRight className="h-3 w-3" />
                   </span>
                 </div>
@@ -174,7 +174,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ 4. BEST SELLERS ═══════════════════ */}
-      <section className="py-24 bg-neutral-4000 border-y border-border/30">
+      <section className="py-24 bg-neutral-50 border-y border-border/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-14">
             <div>
@@ -205,9 +205,9 @@ export default function Home() {
               >
                 <Link
                   href={`/products/${product.id}`}
-                  className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-40000 border border-border/30"
+                  className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/30"
                 >
-                  <div className="relative aspect-square w-full overflow-hidden bg-neutral-8000">
+                  <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
                     <img
                       src={product.images[0]}
                       alt={product.name}
@@ -252,7 +252,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Leaf, title: "Sustainably Sourced", desc: "8000% biodegradable or recyclable organic elements in every product." },
+            { icon: Leaf, title: "Sustainably Sourced", desc: "100% biodegradable or recyclable organic elements in every product." },
             { icon: Shield, title: "Toxin & BPA Free", desc: "Pure, non-reactive food-safe materials — 99.7% copper & borosilicate glass." },
             { icon: Award, title: "Heritage Crafts", desc: "Directly supporting 200+ local metalsmiths and leather artisans." },
             { icon: Heart, title: "Ayurvedic Wellness", desc: "Designed to support healthy living through mineral-charged hydration." },
@@ -263,7 +263,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
-              className="group text-center p-8 rounded-2xl border border-border/30 bg-white hover:shadow-lg hover:border-luxury-gold/20 transition-all duration-40000"
+              className="group text-center p-8 rounded-2xl border border-border/30 bg-white hover:shadow-lg hover:border-luxury-gold/20 transition-all duration-500"
             >
               <div className="mx-auto w-14 h-14 flex items-center justify-center rounded-full bg-luxury-gold/10 text-luxury-gold mb-5 group-hover:scale-110 group-hover:bg-luxury-gold/20 transition-all duration-300">
                 <badge.icon className="h-6 w-6" strokeWidth={1.5} />
@@ -276,7 +276,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ 6. TESTIMONIALS ═══════════════════ */}
-      <section className="py-24 bg-neutral-4000 border-y border-border/30">
+      <section className="py-24 bg-neutral-50 border-y border-border/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-16">
             <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold font-semibold mb-2 block">Testimonials</span>
@@ -287,7 +287,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { name: "Ananya R.", role: "Wellness Blogger", text: "The copper bottle has completely changed my morning routine. The craftsmanship is unlike anything I've seen — it feels like holding a piece of art.", rating: 5 },
-              { name: "Marcus W.", role: "Corporate Buyer", text: "We ordered 40000 units for our company's wellness initiative. CraftOre's team handled custom branding flawlessly. Our employees loved the quality.", rating: 5 },
+              { name: "Marcus W.", role: "Corporate Buyer", text: "We ordered 500 units for our company's wellness initiative. CraftOre's team handled custom branding flawlessly. Our employees loved the quality.", rating: 5 },
               { name: "Sophie L.", role: "Interior Designer", text: "The Imperial Carafe Set is stunning on any table. My clients always ask where I sourced it. Premium quality at a fair price.", rating: 5 },
             ].map((testimonial, idx) => (
               <motion.div
@@ -296,7 +296,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.15, duration: 0.5 }}
-                className="relative p-8 bg-white rounded-2xl border border-border/30 shadow-sm hover:shadow-lg transition-all duration-40000"
+                className="relative p-8 bg-white rounded-2xl border border-border/30 shadow-sm hover:shadow-lg transition-all duration-500"
               >
                 <Quote className="h-8 w-8 text-luxury-gold/20 mb-4" />
                 <p className="text-sm text-muted-foreground leading-relaxed font-light mb-6 italic">
@@ -341,19 +341,19 @@ export default function Home() {
               <span className="text-gradient-gold">Gifting Experience</span>
             </h2>
             <p className="max-w-2xl mx-auto text-sm sm:text-base text-neutral-300/80 leading-relaxed font-light mb-10">
-              Custom logo engraving, premium packaging, and tiered bulk discounts for businesses worldwide. Join 8000+ corporate partners.
+              Custom logo engraving, premium packaging, and tiered bulk discounts for businesses worldwide. Join 100+ corporate partners.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto mx-auto max-w-md sm:max-w-none">
               <Link
                 href="/b2b"
-                className="group rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-neutral-900 px-8 py-4 text-sm font-semibold transition-all shadow-lg shadow-luxury-gold/20 flex items-center gap-2"
+                className="group rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-neutral-900 px-8 py-4 text-sm font-semibold transition-all shadow-lg shadow-luxury-gold/20 flex items-center justify-center gap-2 w-full sm:w-auto text-center"
               >
                 Access B2B Portal
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/contact?type=corporate"
-                className="rounded-full border border-white/20 hover:bg-white/10 hover:border-white/40 text-white px-8 py-4 text-sm font-semibold transition-all"
+                className="rounded-full border border-white/20 hover:bg-white/10 hover:border-white/40 text-white px-8 py-4 text-sm font-semibold transition-all text-center w-full sm:w-auto"
               >
                 Request Catalog
               </Link>
@@ -399,8 +399,8 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.15, duration: 0.5 }}
             >
-              <Link href="/blog" className="group flex flex-col bg-white rounded-2xl border border-border/30 overflow-hidden hover:shadow-lg transition-all duration-40000">
-                <div className="h-64 overflow-hidden bg-neutral-8000">
+              <Link href="/blog" className="group flex flex-col bg-white rounded-2xl border border-border/30 overflow-hidden hover:shadow-lg transition-all duration-500">
+                <div className="h-64 overflow-hidden bg-neutral-100">
                   <img
                     src={blog.image}
                     alt={blog.title}
@@ -428,7 +428,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ 9. NEWSLETTER ═══════════════════ */}
-      <section className="py-20 bg-neutral-4000 border-t border-border/30">
+      <section className="py-20 bg-neutral-50 border-t border-border/30">
         <div className="mx-auto max-w-2xl px-4 text-center">
           <Sparkles className="h-8 w-8 text-luxury-gold mx-auto mb-4" />
           <h2 className="font-serif text-2xl sm:text-3xl font-normal tracking-wide mb-3">

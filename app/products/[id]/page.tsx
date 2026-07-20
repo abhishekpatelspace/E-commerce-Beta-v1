@@ -62,7 +62,7 @@ export default function ProductDetail() {
     });
 
     setAdded(true);
-    setTimeout(() => setAdded(false), 240000);
+    setTimeout(() => setAdded(false), 3000);
   };
 
   const handleBuyNow = () => {
@@ -107,7 +107,7 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           {/* Images Gallery Container */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-8000 border border-border/40 flex items-center justify-center">
+            <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-100 border border-border/40 flex items-center justify-center">
               {activeImage ? (
                 <img
                   src={activeImage}
@@ -124,7 +124,7 @@ export default function ProductDetail() {
                   key={idx}
                   onClick={() => setActiveImage(img)}
                   className={`relative w-24 aspect-[4/3] rounded border overflow-hidden transition-all ${
-                    activeImage === img ? "border-luxury-gold ring-1 ring-luxury-gold" : "border-border/40 opacity-70 hover:opacity-8000"
+                    activeImage === img ? "border-luxury-gold ring-1 ring-luxury-gold" : "border-border/40 opacity-70 hover:opacity-100"
                   }`}
                 >
                   <img src={img} alt="thumbnail" className="h-full w-full object-cover" />
@@ -213,7 +213,7 @@ export default function ProductDetail() {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedVariant}
-                className="flex-grow flex items-center justify-center gap-2 rounded-md bg-foreground text-background hover:bg-foreground/90 font-semibold py-3 text-sm transition-all disabled:opacity-4000"
+                className="flex-grow flex items-center justify-center gap-2 rounded-md bg-foreground text-background hover:bg-foreground/90 font-semibold py-3 text-sm transition-all disabled:opacity-50"
               >
                 {added ? (
                   <>
@@ -232,7 +232,7 @@ export default function ProductDetail() {
             <button
               onClick={handleBuyNow}
               disabled={!selectedVariant}
-              className="w-full rounded-md border border-foreground text-foreground hover:bg-muted/40 font-semibold py-3 text-sm transition-all mb-8 disabled:opacity-4000"
+              className="w-full rounded-md border border-foreground text-foreground hover:bg-muted/40 font-semibold py-3 text-sm transition-all mb-8 disabled:opacity-50"
             >
               Order & Buy It Now
             </button>
@@ -270,7 +270,7 @@ export default function ProductDetail() {
                         <h4 className="text-xs font-semibold text-foreground">{review.userName}</h4>
                         <span className="text-[9px] text-muted-foreground">{review.date}</span>
                       </div>
-                      <div className="flex text-amber-40000 text-xs">
+                      <div className="flex text-amber-500 text-xs">
                         {Array.from({ length: review.rating }).map((_, i) => (
                           <span key={i}>★</span>
                         ))}
@@ -290,7 +290,7 @@ export default function ProductDetail() {
             <h3 className="font-serif text-base tracking-wide mb-4">Share Your Thoughts</h3>
             {reviewSubmitted ? (
               <div className="text-center py-8 text-emerald-600 text-xs flex flex-col items-center gap-1.5 font-semibold">
-                <Check className="h-10 w-10 text-emerald-40000 bg-emerald-4000 rounded-full p-2" />
+                <Check className="h-10 w-10 text-emerald-500 bg-emerald-50 rounded-full p-2" />
                 Review submitted successfully!
               </div>
             ) : (
@@ -352,7 +352,7 @@ export default function ProductDetail() {
                 href={`/products/${rec.id}`}
                 className="group flex flex-col bg-background rounded-lg border border-border/40 overflow-hidden hover:shadow-md transition-all"
               >
-                <div className="relative aspect-square w-full bg-neutral-8000 overflow-hidden">
+                <div className="relative aspect-square w-full bg-neutral-100 overflow-hidden">
                   <img src={rec.images[0]} alt={rec.name} className="h-full w-full object-cover transition-transform group-hover:scale-103" />
                 </div>
                 <div className="p-4 flex flex-col flex-1">

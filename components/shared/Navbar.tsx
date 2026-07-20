@@ -146,7 +146,7 @@ export default function Navbar() {
                 />
                 <span
                   className={cn(
-                    "font-serif text-xl tracking-[0.2em] font-semibold transition-all uppercase",
+                    "font-serif text-base sm:text-lg md:text-xl tracking-[0.15em] sm:tracking-[0.2em] font-semibold transition-all uppercase",
                     isHomepage && !scrolled
                       ? "text-white"
                       : "text-foreground"
@@ -187,7 +187,7 @@ export default function Navbar() {
                           "flex items-center gap-1 text-[13px] font-medium tracking-wide px-3 py-2 rounded-md transition-all",
                           isHomepage && !scrolled
                             ? "text-white/80 hover:text-white hover:bg-white/10"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/4000",
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                           isChildActive && "text-foreground font-semibold"
                         )}
                       >
@@ -200,31 +200,31 @@ export default function Navbar() {
 
                       <AnimatePresence>
                         {activeDropdown === item.name && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                            transition={{ duration: 0.15, ease: "easeOut" }}
-                            className="absolute left-0 mt-1 w-60 rounded-xl border border-border/40 bg-background/95 backdrop-blur-xl shadow-xl overflow-hidden z-4000"
+                           <motion.div
+                             initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                             animate={{ opacity: 1, y: 0, scale: 1 }}
+                             exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                             transition={{ duration: 0.15, ease: "easeOut" }}
+                             className="absolute left-0 mt-1 w-60 rounded-xl border border-border/40 bg-background/95 backdrop-blur-xl shadow-xl overflow-hidden z-50"
                           >
                             <div className="py-2">
                               {item.children.map((child) => (
-                                <Link
-                                  key={child.name}
-                                  href={child.href}
-                                  className="block px-4 py-2.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/4000 transition-all"
-                                >
-                                  {child.name}
-                                </Link>
-                              ))}
-                              <div className="border-t border-border/40 mt-1 pt-1">
-                                <Link
-                                  href="/categories"
-                                  className="block px-4 py-2 text-[13px] font-medium text-luxury-gold hover:text-luxury-gold/80 hover:bg-muted/4000 transition-all"
-                                >
-                                  View All Categories
-                                </Link>
-                              </div>
+                                 <Link
+                                   key={child.name}
+                                   href={child.href}
+                                   className="block px-4 py-2.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                                 >
+                                   {child.name}
+                                 </Link>
+                               ))}
+                               <div className="border-t border-border/40 mt-1 pt-1">
+                                 <Link
+                                   href="/categories"
+                                   className="block px-4 py-2 text-[13px] font-medium text-luxury-gold hover:text-luxury-gold/80 hover:bg-muted/50 transition-all"
+                                 >
+                                   View All Categories
+                                 </Link>
+                               </div>
                             </div>
                           </motion.div>
                         )}
@@ -241,7 +241,7 @@ export default function Navbar() {
                       "text-[13px] font-medium tracking-wide px-3 py-2 rounded-md relative block transition-all duration-200 hover:scale-[1.02] active:scale-[0.96]",
                       isHomepage && !scrolled
                         ? "text-white/80 hover:text-white hover:bg-white/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/4000",
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                       isActive && (isHomepage && !scrolled ? "text-white" : "text-foreground font-semibold")
                     )}
                   >
@@ -262,8 +262,8 @@ export default function Navbar() {
               <Link
                 href="/products?search=true"
                 className={cn(
-                  "p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
-                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                  "hidden md:inline-flex p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
+                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 title="Search"
               >
@@ -273,8 +273,8 @@ export default function Navbar() {
               <Link
                 href="/account"
                 className={cn(
-                  "p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
-                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                  "hidden md:inline-flex p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
+                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 title="My Account"
               >
@@ -284,8 +284,8 @@ export default function Navbar() {
               <Link
                 href="/account?tab=wishlist"
                 className={cn(
-                  "relative p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
-                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                  "hidden md:inline-flex relative p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
+                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 title="Wishlist"
               >
@@ -301,7 +301,7 @@ export default function Navbar() {
                 href="/cart"
                 className={cn(
                   "relative p-2.5 rounded-full transition-all duration-200 hover:scale-105 active:scale-90",
-                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                  isHomepage && !scrolled ? "text-white/80 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 title="Shopping Cart"
               >
@@ -327,6 +327,27 @@ export default function Navbar() {
               className="md:hidden bg-background border-b border-border/40 overflow-hidden"
             >
               <div className="space-y-1 px-4 pb-6 pt-3">
+                {/* Mobile Search Bar */}
+                <div className="mb-4 relative px-3">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const query = formData.get("search")?.toString() || "";
+                      setMobileMenuOpen(false);
+                      window.location.href = `/products?search=${encodeURIComponent(query)}`;
+                    }}
+                  >
+                    <Search className="absolute left-6 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
+                    <input
+                      type="search"
+                      name="search"
+                      placeholder="Search products..."
+                      className="w-full rounded-full border border-border bg-background py-2 pl-9 pr-4 text-xs focus:border-luxury-gold focus:outline-none transition-colors"
+                    />
+                  </form>
+                </div>
+
                 {navigation.map((item) => (
                   <div key={item.name} className="py-1">
                     {item.children ? (
@@ -334,7 +355,7 @@ export default function Navbar() {
                         <motion.button
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
-                          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/4000 rounded-lg transition-all"
+                          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                         >
                           <span>{item.name}</span>
                           <ChevronDown className={cn(
@@ -357,7 +378,7 @@ export default function Navbar() {
                                     key={child.name}
                                     href={child.href}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/4000 transition-all duration-200 active:scale-[0.98]"
+                                    className="block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 active:scale-[0.98]"
                                   >
                                     {child.name}
                                   </Link>
@@ -365,7 +386,7 @@ export default function Navbar() {
                                 <Link
                                   href="/categories"
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className="block rounded-lg px-3 py-2 text-sm font-medium text-luxury-gold hover:bg-muted/4000 transition-all duration-200 active:scale-[0.98]"
+                                  className="block rounded-lg px-3 py-2 text-sm font-medium text-luxury-gold hover:bg-muted/50 transition-all duration-200 active:scale-[0.98]"
                                 >
                                   View All Categories
                                 </Link>
@@ -379,7 +400,7 @@ export default function Navbar() {
                         href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
                         className={cn(
-                          "block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/4000 transition-all duration-200 active:scale-[0.98]",
+                          "block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 active:scale-[0.98]",
                           pathname === item.href && "text-foreground bg-muted/30"
                         )}
                       >
@@ -388,6 +409,26 @@ export default function Navbar() {
                     )}
                   </div>
                 ))}
+
+                {/* Mobile User Quick Links */}
+                <div className="grid grid-cols-2 gap-2 px-3 py-2 border-t border-border/40 mt-3 pt-3">
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-border/60 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    My Account
+                  </Link>
+                  <Link
+                    href="/account?tab=wishlist"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-border/60 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-colors"
+                  >
+                    <Heart className="h-4 w-4 text-destructive" />
+                    Wishlist ({wishlistCount})
+                  </Link>
+                </div>
               </div>
             </motion.div>
           )}

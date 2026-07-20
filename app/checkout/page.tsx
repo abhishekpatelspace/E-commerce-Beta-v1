@@ -159,7 +159,7 @@ export default function Checkout() {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="flex flex-col items-center justify-center p-8 border border-border/40 bg-background rounded-lg shadow-sm">
-          <CheckCircle2 className="h-16 w-16 text-emerald-40000 mb-6 animate-pulse" />
+          <CheckCircle2 className="h-16 w-16 text-emerald-500 mb-6 animate-pulse" />
           <span className="text-xs uppercase tracking-[0.2em] text-luxury-gold font-semibold mb-2">Order Confirmed</span>
           <h2 className="font-serif text-3xl font-normal mb-3 text-foreground">Thank You for Your Order</h2>
           <p className="text-sm text-muted-foreground leading-relaxed font-light mb-6">

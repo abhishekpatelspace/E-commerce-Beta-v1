@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-40000">
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <p>&copy; {new Date().getFullYear()} CraftOre Global. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="hover:text-neutral-300 transition-colors">Privacy Policy</a>

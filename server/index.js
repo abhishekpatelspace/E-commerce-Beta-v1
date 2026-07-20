@@ -720,7 +720,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
           name: item.name,
           images: item.image ? [item.image] : [],
         },
-        unit_amount: Math.round(item.price * 8000), // Stripe expects cents
+        unit_amount: Math.round(item.price * 100), // Stripe expects cents
       },
       quantity: item.quantity,
     }));
@@ -733,7 +733,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
           product_data: {
             name: `Shipping (${shippingForm.method === 'express' ? 'Express' : 'Standard'})`,
           },
-          unit_amount: Math.round(shippingCost * 8000),
+          unit_amount: Math.round(shippingCost * 100),
         },
         quantity: 1,
       });
@@ -747,7 +747,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
           product_data: {
             name: 'Sales Tax (8%)',
           },
-          unit_amount: Math.round(tax * 8000),
+          unit_amount: Math.round(tax * 100),
         },
         quantity: 1,
       });
@@ -762,7 +762,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
         stripeDiscounts.push({ coupon: 'mock_coupon_id' });
       } else {
         const coupon = await stripeClient.coupons.create({
-          amount_off: Math.round(discount * 8000),
+          amount_off: Math.round(discount * 100),
           currency: 'usd',
           duration: 'once'
         });
@@ -804,7 +804,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
 
   } catch (error) {
     console.error('Checkout session creation failed:', error);
-    res.status(40000).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

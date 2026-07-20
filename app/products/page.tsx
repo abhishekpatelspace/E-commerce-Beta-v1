@@ -19,6 +19,7 @@ function ProductsCatalog() {
   const [sortBy, setSortBy] = useState("featured");
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const catParam = searchParams.get("category");
@@ -96,15 +97,25 @@ function ProductsCatalog() {
                 Showing {sortedProducts.length} premium sustainable items.
               </p>
             </div>
-            <div className="relative max-w-xs w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-md border border-border bg-background py-2.5 pl-9 pr-4 text-sm focus:border-luxury-gold focus:outline-none focus:ring-1 focus:ring-luxury-gold transition-colors"
-              />
+            <div className="flex items-center gap-3 w-full md:max-w-xs justify-between md:justify-end">
+              {/* Mobile Filter Toggle Button */}
+              <button
+                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                className="flex lg:hidden items-center gap-2 px-4 py-2.5 rounded-md border border-border bg-background text-xs font-semibold hover:bg-muted/50 transition-colors"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                {mobileFiltersOpen ? "Hide Filters" : "Filters & Sort"}
+              </button>
+              <div className="relative max-w-xs w-full">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background py-2.5 pl-9 pr-4 text-sm focus:border-luxury-gold focus:outline-none focus:ring-1 focus:ring-luxury-gold transition-colors"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -112,7 +123,7 @@ function ProductsCatalog() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
           {/* Sidebar Filters */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className={`lg:col-span-1 space-y-6 ${mobileFiltersOpen ? "block" : "hidden lg:block"}`}>
             {/* Category Filter */}
             <div className="border border-border/40 rounded-xl p-5 bg-card">
               <h3 className="text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-1.5 text-foreground">
@@ -125,7 +136,7 @@ function ProductsCatalog() {
                   className={`block w-full text-left text-xs font-medium transition-all py-2 px-3 rounded-md ${
                     selectedCategory === "All"
                       ? "bg-foreground text-background font-semibold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   All Products ({products.length})
@@ -139,7 +150,7 @@ function ProductsCatalog() {
                       className={`block w-full text-left text-xs font-medium transition-all py-2 px-3 rounded-md ${
                         selectedCategory === cat.id
                           ? "bg-foreground text-background font-semibold"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       }`}
                     >
                       {cat.name} ({count})
@@ -167,7 +178,7 @@ function ProductsCatalog() {
                     className={`block w-full text-left text-xs font-medium transition-all py-2 px-3 rounded-md ${
                       priceFilter === price.value
                         ? "bg-foreground text-background font-semibold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/4000"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
                     {price.label}
@@ -206,11 +217,11 @@ function ProductsCatalog() {
                       href={`/products/${product.id}`}
                       className="group relative flex flex-col bg-card rounded-xl border border-border/40 overflow-hidden hover:shadow-lg hover:border-border transition-all duration-300"
                     >
-                      <div className="relative aspect-[4/3] w-full bg-neutral-8000 overflow-hidden">
+                      <div className="relative aspect-[4/3] w-full bg-neutral-100 overflow-hidden">
                         <img
                           src={product.images[0]}
                           alt={product.name}
-                          className="h-full w-full object-cover transition-transform duration-40000 group-hover:scale-105"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {product.rating >= 4.8 && (
                           <span className="absolute left-3 top-3 bg-luxury-gold/90 text-neutral-900 text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-md">
@@ -244,7 +255,7 @@ function ProductsCatalog() {
                         <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/30 mt-4">
                           <span className="text-base font-semibold text-foreground">₹{product.price}</span>
                           <div className="flex items-center gap-1">
-                            <span className="text-amber-40000 text-xs">★</span>
+                            <span className="text-amber-500 text-xs">★</span>
                             <span className="text-[11px] text-muted-foreground font-semibold">{product.rating}</span>
                           </div>
                         </div>
@@ -259,7 +270,7 @@ function ProductsCatalog() {
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 text-xs font-semibold px-4 py-2.5 rounded-md border border-border/40 hover:bg-muted/4000 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1 text-xs font-semibold px-4 py-2.5 rounded-md border border-border/40 hover:bg-muted/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Previous
@@ -273,7 +284,7 @@ function ProductsCatalog() {
                           className={`w-9 h-9 rounded-md text-xs font-semibold transition-all ${
                             currentPage === page
                               ? "bg-foreground text-background shadow-sm"
-                              : "text-muted-foreground hover:bg-muted/4000 hover:text-foreground"
+                              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                           }`}
                         >
                           {page}
@@ -284,7 +295,7 @@ function ProductsCatalog() {
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 text-xs font-semibold px-4 py-2.5 rounded-md border border-border/40 hover:bg-muted/4000 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1 text-xs font-semibold px-4 py-2.5 rounded-md border border-border/40 hover:bg-muted/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       Next
                       <ChevronRight className="h-3.5 w-3.5" />

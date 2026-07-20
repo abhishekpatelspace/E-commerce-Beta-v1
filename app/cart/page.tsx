@@ -21,8 +21,8 @@ export default function Cart() {
       setCouponApplied("WELCOME10");
       setCouponError("");
       localStorage.setItem("craftore_coupon", "WELCOME10");
-    } else if (couponCode.toUpperCase() === "B2B4000") {
-      setCouponError("B2B4000 is a wholesale coupon only applicable inside B2B checkout.");
+    } else if (couponCode.toUpperCase() === "B2B50") {
+      setCouponError("B2B50 is a wholesale coupon only applicable inside B2B checkout.");
       setDiscount(0);
       setCouponApplied(null);
     } else {
@@ -70,7 +70,7 @@ export default function Cart() {
                   key={item.id}
                   className="flex flex-col sm:flex-row gap-6 p-5 rounded-lg border border-border/40 bg-background shadow-sm"
                 >
-                  <div className="w-full sm:w-28 aspect-square rounded overflow-hidden bg-neutral-8000 border border-border/40">
+                  <div className="w-full sm:w-28 aspect-square rounded overflow-hidden bg-neutral-100 border border-border/40">
                     <img src={item.image} alt={item.productName} className="h-full w-full object-cover" />
                   </div>
                   
@@ -174,7 +174,7 @@ export default function Cart() {
                   Promo Coupon Code
                 </h4>
                 {couponApplied ? (
-                  <div className="flex items-center justify-between text-emerald-600 text-xs font-semibold p-2.5 bg-emerald-4000 rounded">
+                  <div className="flex items-center justify-between text-emerald-600 text-xs font-semibold p-2.5 bg-emerald-50 rounded">
                     <span className="flex items-center gap-1">
                       <Check className="h-4 w-4" /> Code {couponApplied} Applied
                     </span>
