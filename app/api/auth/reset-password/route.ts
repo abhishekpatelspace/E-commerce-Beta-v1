@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { User } from "@/lib/models";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword } from "@/lib/crypto";
 
 export async function POST(req: Request) {
   try {
