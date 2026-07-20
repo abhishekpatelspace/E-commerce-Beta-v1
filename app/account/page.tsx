@@ -376,7 +376,7 @@ export default function Account() {
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+      setAuthError("Failed to connect to authentication server. If you are using local MongoDB auth, make sure your local Node.js backend is running and NEXT_PUBLIC_NODE_BACKEND_URL is set correctly.");
     }
   };
 
@@ -405,7 +405,7 @@ export default function Account() {
       setIsResetPassword(false);
       setPassword("");
     } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+      setAuthError("Failed to connect to authentication server. If you are using local MongoDB auth, make sure your local Node.js backend is running and NEXT_PUBLIC_NODE_BACKEND_URL is set correctly.");
     }
   };
 
