@@ -24,6 +24,7 @@ interface OrderDetail {
   tax?: number;
   items?: any[];
   customerEmail?: string;
+  paymentMethod?: string;
 }
 
 export default function Account() {
@@ -58,6 +59,9 @@ export default function Account() {
   const [gender, setGender] = useState("Male");
   const [dob, setDob] = useState("");
   const [nationality, setNationality] = useState("");
+
+  // Expanded order detail view
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   // Cancel order modal states
   const [cancelModal, setCancelModal] = useState<{ open: boolean; orderId: string; loading: boolean; error: string; success: string }>({
@@ -1002,66 +1006,32 @@ export default function Account() {
                       return (
                         <div
                           key={order.orderId}
-                          className="border border-border/45 rounded-lg p-5 bg-background shadow-sm hover:shadow text-xs"
+                          className="border border-border/45 rounded-lg bg-background shadow-sm hover:shadow transition-shadow text-xs"
                         >
-                          <div className="flex flex-col sm:flex-row justify-between border-b border-border/30 pb-3 mb-3 gap-2">
-                            <div>
-                              <span className="text-muted-foreground">Order ID:</span>
-                              <span className="font-semibold text-foreground ml-1.5">{order.orderId}</span>
-                            </div>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
+                          {/* Compact Summary Row — always visible */}
+                          <button
+                            type="button"
+                            onClick={() => setExpandedOrder(expandedOrder === order.orderId ? null : order.orderId)}
+                            className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-muted/20 rounded-lg transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              {order.items && order.items.length > 0 && order.items[0].image ? (
+                                <img src={order.items[0].image} alt="" className="w-12 h-12 rounded-md object-cover border border-border/30 flex-shrink-0" />
+                              ) : (
+                                <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border/30">
+                                  <Package className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                              )}
                               <div>
-                                <span>Placed:</span>
-                                <span className="font-semibold text-foreground ml-1">
+                                <span className="font-semibold text-foreground text-xs block">{order.orderId}</span>
+                                <span className="text-[10px] text-muted-foreground block mt-0.5">
                                   {order.placedAt ? new Date(order.placedAt).toLocaleString() : order.date}
+                                  {order.items && order.items.length > 0 && ` · ${order.items.length} item${order.items.length > 1 ? "s" : ""}`}
                                 </span>
                               </div>
-                              {order.processedAt && (
-                                <div>
-                                  <span>Processed:</span>
-                                  <span className="font-semibold text-foreground ml-1">
-                                    {new Date(order.processedAt).toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
-                              {order.status === "Cancelled" && order.cancelledAt && (
-                                <div>
-                                  <span className="text-red-500">Cancelled:</span>
-                                  <span className="font-semibold text-red-500 ml-1">
-                                    {new Date(order.cancelledAt).toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
                             </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 items-center">
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Total Items</span>
-                              <span className="font-semibold text-foreground">{order.itemsCount} Items</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Total Price</span>
-                              <span className="font-semibold text-foreground">₹{order.total.toFixed(2)}</span>
-                            </div>
-                            <div className="sm:text-right flex items-center justify-end gap-3 flex-wrap">
-                              {order.status === "Delivered" && (
-                                <button
-                                  onClick={() => handleDownloadInvoice(order)}
-                                  className="px-3 py-1 border border-luxury-gold hover:bg-luxury-gold hover:text-background text-luxury-gold rounded text-[10px] font-semibold transition-all flex items-center gap-1.5"
-                                >
-                                  <Package className="h-3 w-3" />
-                                  Download Bill
-                                </button>
-                              )}
-                              {(order.status === "Pending" || order.status === "Paid" || order.status === "Processing") && (
-                                <button
-                                  onClick={() => handleCancelOrder(order.orderId)}
-                                  className="px-3 py-1 border border-red-500/50 hover:bg-red-500 hover:text-white text-red-500 rounded text-[10px] font-semibold transition-all"
-                                >
-                                  Cancel Order
-                                </button>
-                              )}
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold text-foreground">₹{order.total?.toFixed(2)}</span>
                               <span className={`inline-flex rounded-full font-bold uppercase tracking-wider text-[9px] px-2.5 py-1 ${
                                 order.status === "Delivered"
                                   ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400"
@@ -1073,96 +1043,186 @@ export default function Account() {
                               }`}>
                                 {order.status}
                               </span>
+                              <svg className={`w-4 h-4 text-muted-foreground transition-transform ${expandedOrder === order.orderId ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                             </div>
-                          </div>
+                          </button>
 
-                          {/* Ordered Items Detail */}
-                          {order.items && order.items.length > 0 && (
-                            <div className="mt-5 border-t border-border/30 pt-4">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-3">Ordered Items</span>
-                              <div className="space-y-3">
-                                {order.items.map((item: any, idx: number) => (
-                                  <div key={idx} className="flex items-center gap-3 bg-muted/20 rounded-lg p-3 border border-border/20">
-                                    {item.image ? (
-                                      <img
-                                        src={item.image}
-                                        alt={item.name}
-                                        className="w-14 h-14 rounded-md object-cover border border-border/30 flex-shrink-0"
-                                      />
-                                    ) : (
-                                      <div className="w-14 h-14 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border/30">
-                                        <Package className="h-5 w-5 text-muted-foreground" />
-                                      </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <span className="block text-xs font-semibold text-foreground truncate">{item.name}</span>
-                                      <span className="block text-[10px] text-muted-foreground mt-0.5">
-                                        Qty: {item.quantity} × ₹{item.price?.toFixed(2)}
-                                      </span>
+                          {/* Expanded Flipkart-style Order Details */}
+                          {expandedOrder === order.orderId && (
+                            <div className="border-t border-border/30 p-5">
+                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* LEFT: Items + Timeline */}
+                                <div className="lg:col-span-2 space-y-5">
+                                  {order.items && order.items.length > 0 ? (
+                                    <div className="space-y-3">
+                                      {order.items.map((item: any, idx: number) => (
+                                        <div key={idx} className="flex gap-4 p-3 rounded-lg border border-border/20 bg-muted/10 hover:bg-muted/20 transition-colors">
+                                          {item.image ? (
+                                            <img src={item.image} alt={item.name} className="w-20 h-20 rounded-md object-cover border border-border/30 flex-shrink-0" />
+                                          ) : (
+                                            <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border/30">
+                                              <Package className="h-6 w-6 text-muted-foreground" />
+                                            </div>
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                            <span className="block text-sm font-semibold text-foreground leading-tight">{item.name}</span>
+                                            {item.variantId && item.variantId !== item.productId && (
+                                              <span className="block text-[10px] text-muted-foreground mt-0.5">Variant: {item.variantId}</span>
+                                            )}
+                                            <span className="block text-xs text-foreground mt-1.5 font-medium">
+                                              ₹{item.price?.toFixed(2)} <span className="text-muted-foreground font-normal">× {item.quantity}</span>
+                                            </span>
+                                            <span className="block text-xs font-semibold text-luxury-gold mt-1">
+                                              Subtotal: ₹{(item.quantity * item.price).toFixed(2)}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      ))}
                                     </div>
-                                    <span className="text-xs font-semibold text-foreground flex-shrink-0">
-                                      ₹{(item.quantity * item.price).toFixed(2)}
-                                    </span>
+                                  ) : (
+                                    <div className="text-center py-6 border border-dashed border-border/30 rounded-lg">
+                                      <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                      <p className="text-[11px] text-muted-foreground">Item details not available for this order.</p>
+                                    </div>
+                                  )}
+
+                                  {/* Vertical Timeline */}
+                                  {order.status !== "Cancelled" ? (
+                                    <div className="border-t border-border/20 pt-4">
+                                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-3">Order Timeline</span>
+                                      <div className="relative pl-6 space-y-4">
+                                        {trackingSteps.map((step, index) => {
+                                          const stepNum = index + 1;
+                                          const isCompleted = currentStep >= stepNum;
+                                          return (
+                                            <div key={index} className="relative flex items-start gap-3">
+                                              {index < trackingSteps.length - 1 && (
+                                                <div className={`absolute left-[-15px] top-5 w-[2px] h-full ${isCompleted ? "bg-emerald-500" : "bg-border/40"}`} />
+                                              )}
+                                              <div className={`absolute left-[-19px] top-0.5 w-[10px] h-[10px] rounded-full border-2 ${
+                                                isCompleted ? "bg-emerald-500 border-emerald-500" : "bg-background border-border"
+                                              }`} />
+                                              <div>
+                                                <span className={`block text-xs font-semibold ${isCompleted ? "text-foreground" : "text-muted-foreground"}`}>{step.label}</span>
+                                                <span className="block text-[10px] text-muted-foreground">{step.desc}</span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="border-t border-border/20 pt-4 text-center">
+                                      <span className="text-red-500 font-semibold text-xs">This order has been cancelled.</span>
+                                      {order.cancelledAt && (
+                                        <span className="block text-[10px] text-muted-foreground mt-1">Cancelled on {new Date(order.cancelledAt).toLocaleString()}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* RIGHT: Delivery + Price + Actions */}
+                                <div className="space-y-4">
+                                  {/* Delivery Details */}
+                                  <div className="border border-border/30 rounded-lg p-4 bg-muted/10">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-3">Delivery Details</span>
+                                    {typeof order.shippingAddress === "object" && order.shippingAddress ? (
+                                      <div className="space-y-2 text-xs">
+                                        <div className="flex items-start gap-2">
+                                          <svg className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                          <div>
+                                            <span className="font-semibold text-foreground block">{order.shippingAddress.name}</span>
+                                            <span className="text-muted-foreground block mt-0.5">{order.shippingAddress.address}</span>
+                                            <span className="text-muted-foreground block">{order.shippingAddress.city} - {order.shippingAddress.zip}</span>
+                                          </div>
+                                        </div>
+                                        {order.shippingAddress.phone && (
+                                          <div className="flex items-center gap-2">
+                                            <svg className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                            <span className="text-muted-foreground">{order.shippingAddress.phone}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <span className="text-xs text-muted-foreground">{String(order.shippingAddress || "N/A")}</span>
+                                    )}
                                   </div>
-                                ))}
+
+                                  {/* Price Breakdown */}
+                                  <div className="border border-border/30 rounded-lg p-4 bg-muted/10">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-3">Price Details</span>
+                                    <div className="space-y-2 text-xs">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Items ({order.itemsCount})</span>
+                                        <span className="text-foreground">₹{((order.total || 0) - (order.shippingCost || 0) - (order.tax || 0) + (order.discount || 0)).toFixed(2)}</span>
+                                      </div>
+                                      {(order.discount || 0) > 0 && (
+                                        <div className="flex justify-between">
+                                          <span className="text-emerald-600 dark:text-emerald-400">Discount</span>
+                                          <span className="text-emerald-600 dark:text-emerald-400">−₹{order.discount?.toFixed(2)}</span>
+                                        </div>
+                                      )}
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Shipping</span>
+                                        <span className="text-foreground">{(order.shippingCost || 0) > 0 ? `₹${order.shippingCost?.toFixed(2)}` : "Free"}</span>
+                                      </div>
+                                      {(order.tax || 0) > 0 && (
+                                        <div className="flex justify-between">
+                                          <span className="text-muted-foreground">Tax (GST)</span>
+                                          <span className="text-foreground">₹{order.tax?.toFixed(2)}</span>
+                                        </div>
+                                      )}
+                                      <div className="border-t border-dashed border-border/40 pt-2 mt-2 flex justify-between font-semibold">
+                                        <span className="text-foreground">Total Amount</span>
+                                        <span className="text-foreground">₹{order.total?.toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex justify-between text-[10px] pt-1">
+                                        <span className="text-muted-foreground">Paid By</span>
+                                        <span className="text-foreground capitalize">{order.paymentMethod || "Online"}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="space-y-2">
+                                    {order.status === "Delivered" && (
+                                      <button
+                                        onClick={() => handleDownloadInvoice(order)}
+                                        className="w-full flex items-center justify-center gap-2 py-2.5 border border-border/40 rounded-md hover:bg-muted/30 text-xs font-semibold transition-colors"
+                                      >
+                                        <Package className="h-3.5 w-3.5" />
+                                        Download Invoice
+                                      </button>
+                                    )}
+                                    {(order.status === "Pending" || order.status === "Paid" || order.status === "Processing") && (
+                                      <button
+                                        onClick={() => handleCancelOrder(order.orderId)}
+                                        className="w-full flex items-center justify-center gap-2 py-2.5 border border-red-500/50 rounded-md hover:bg-red-500 hover:text-white text-red-500 text-xs font-semibold transition-all"
+                                      >
+                                        Cancel Order
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  {/* Admin Remarks */}
+                                  {order.adminRemarks && (
+                                    <div className="bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-[10px] p-3 rounded border border-blue-200 dark:border-blue-900/30 flex items-start gap-2">
+                                      <MessageSquare className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                                      <span><strong>Admin Note:</strong> {order.adminRemarks}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Order Footer */}
+                              <div className="mt-4 pt-3 border-t border-border/20 flex items-center justify-between">
+                                <span className="text-[10px] text-muted-foreground">Order #{order.orderId}</span>
+                                {order.customerEmail && (
+                                  <span className="text-[10px] text-muted-foreground">{order.customerEmail}</span>
+                                )}
                               </div>
                             </div>
                           )}
-
-                          {/* Visual Order Progress Stepper Timeline */}
-                          {order.status !== "Cancelled" ? (
-                            <div className="mt-6 border-t border-border/30 pt-4 space-y-4">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Tracking Timeline</span>
-                              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-2">
-                                {trackingSteps.map((step, index) => {
-                                  const stepNum = index + 1;
-                                  const isCompleted = currentStep >= stepNum;
-                                  const isActive = currentStep === stepNum;
-                                  return (
-                                    <div key={index} className="flex-1 flex md:flex-col items-center md:text-center w-full relative">
-                                      {/* Line connecting the steps */}
-                                      {index > 0 && (
-                                        <div className={`hidden md:block absolute left-[-50%] top-3 w-full h-[2px] -z-10 ${
-                                          isCompleted ? "bg-luxury-gold" : "bg-border/30"
-                                        }`} />
-                                      )}
-                                      
-                                      {/* Circle indicating status */}
-                                      <div className={`flex items-center justify-center w-6 h-6 rounded-full border text-[10px] font-bold transition-all ${
-                                        isCompleted 
-                                          ? "bg-luxury-gold text-background border-luxury-gold" 
-                                          : "bg-background text-muted-foreground border-border"
-                                      } ${isActive ? "ring-2 ring-luxury-gold/30" : ""}`}>
-                                        {isCompleted ? "✓" : stepNum}
-                                      </div>
-                                      
-                                      {/* Label & Description */}
-                                      <div className="ml-3 md:ml-0 md:mt-2.5 text-left md:text-center">
-                                        <span className={`block text-xs font-semibold ${isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
-                                          {step.label}
-                                        </span>
-                                        <span className="block text-[10px] text-muted-foreground font-light mt-0.5">
-                                          {step.desc}
-                                        </span>
-                                      </div>
-                                    </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="mt-6 border-t border-border/30 pt-4 text-center text-red-500 font-semibold text-[10px] uppercase tracking-wider">
-                            This order has been cancelled.
-                          </div>
-                        )}
-
-                        {/* Admin Remarks Display */}
-                        {order.adminRemarks && (
-                          <div className="mt-3 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-[10px] p-2.5 rounded border border-blue-200 dark:border-blue-900/30 flex items-start gap-2">
-                            <MessageSquare className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                            <span><strong>Admin Note:</strong> {order.adminRemarks}</span>
-                          </div>
-                        )}
 
                       </div>
                     );
