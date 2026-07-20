@@ -115,13 +115,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ 2. MARQUEE TRUST BAR ═══════════════════ */}
-      <section className="py-6 bg-luxury-cream border-y border-border/30 overflow-hidden">
-        <div className="flex items-center justify-center gap-12 text-xs font-semibold uppercase tracking-[0.25em] text-luxury-charcoal/60">
-          {["Free Shipping Over ₹8000", "•", "Handcrafted in India", "•", "99.7% Pure Copper", "•", "30-Day Returns", "•", "Certified Vegan Options"].map((item, i) => (
-            <span key={i} className="whitespace-nowrap">{item}</span>
+      {/* ═══════════════════ 2. DYNAMIC MARQUEE TRUST BAR ═══════════════════ */}
+      <section className="py-4 bg-luxury-cream border-y border-border/40 overflow-hidden select-none">
+        <motion.div
+          className="flex whitespace-nowrap gap-8 min-w-max items-center"
+          animate={{ x: ["-50%", "0%"] }}
+          transition={{
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 32,
+            ease: "linear",
+          }}
+        >
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.25em] text-luxury-charcoal/80">
+              <span className="flex items-center gap-2">
+                <span className="text-amber-600 font-bold">✦</span>
+                <span>Free Shipping Over ₹ 999</span>
+              </span>
+              <span className="text-luxury-charcoal/40 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-600 font-bold">✦</span>
+                <span>Handcrafted in India</span>
+              </span>
+              <span className="text-luxury-charcoal/40 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-600 font-bold">✦</span>
+                <span>99.7% Pure Copper</span>
+              </span>
+              <span className="text-luxury-charcoal/40 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-600 font-bold">✦</span>
+                <span>30-Day Returns</span>
+              </span>
+              <span className="text-luxury-charcoal/40 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-600 font-bold">✦</span>
+                <span>Certified Vegan Options</span>
+              </span>
+              <span className="text-luxury-charcoal/40 font-bold">•</span>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* ═══════════════════ 3. CATEGORY DIRECTORY ═══════════════════ */}

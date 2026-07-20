@@ -245,7 +245,7 @@ export default function ProductDetail() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Truck className="h-4.5 w-4.5 text-primary" strokeWidth={1.5} />
-                <span>Free shipping globally on orders above ₹8000.</span>
+                <span>Free shipping on orders above ₹ 999.</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <RefreshCw className="h-4.5 w-4.5 text-primary" strokeWidth={1.5} />
