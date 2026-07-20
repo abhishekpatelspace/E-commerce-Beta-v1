@@ -288,8 +288,8 @@ export default function Account() {
         setIsRegisterSuccess(true);
         setAuthError("");
       }
-    } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+    } catch (err: any) {
+      setAuthError(err?.message || "Failed to connect to authentication server.");
     }
   };
 
@@ -311,8 +311,8 @@ export default function Account() {
       
       setOtpSent(true);
       setAuthError("");
-    } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+    } catch (err: any) {
+      setAuthError(err?.message || "Failed to connect to authentication server.");
     }
   };
 
@@ -335,8 +335,8 @@ export default function Account() {
       setOtpSent(false);
       setIsSignUp(false);
       setPassword("");
-    } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+    } catch (err: any) {
+      setAuthError(err?.message || "Failed to connect to authentication server.");
     }
   };
 
@@ -362,8 +362,8 @@ export default function Account() {
       setRecoveryOtp("");
       setNewPassword("");
       setConfirmNewPassword("");
-    } catch (err) {
-      setAuthError("Failed to connect to authentication server.");
+    } catch (err: any) {
+      setAuthError(err?.message || "Failed to connect to authentication server.");
     }
   };
 
