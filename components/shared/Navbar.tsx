@@ -109,12 +109,17 @@ export default function Navbar() {
           transition={{
             repeat: Infinity,
             repeatType: "loop",
-            duration: 25,
+            duration: 30,
             ease: "linear",
           }}
         >
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-2">
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">✦</span>
+                <span className="text-amber-300 font-semibold">Free Shipping Over ₹ 999</span>
+              </span>
+              <span className="text-amber-400/80 font-bold">•</span>
               <span className="flex items-center gap-2">
                 <span className="text-amber-400 font-bold">✦</span>
                 <span className="text-neutral-100 font-semibold">Handcrafted in India</span>
@@ -128,6 +133,11 @@ export default function Navbar() {
               <span className="flex items-center gap-2">
                 <span className="text-amber-400 font-bold">✦</span>
                 <span className="text-neutral-100 font-semibold">30-Day Returns</span>
+              </span>
+              <span className="text-amber-400/80 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">✦</span>
+                <span className="text-amber-300 font-semibold">Certified Vegan Options</span>
               </span>
               <span className="text-amber-400/80 font-bold">•</span>
             </div>
